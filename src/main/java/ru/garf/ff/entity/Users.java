@@ -1,31 +1,22 @@
 package ru.garf.ff.entity;
 
-import java.util.Set;
 
 import javax.persistence.Entity;
-import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.OneToMany;
+import javax.persistence.SequenceGenerator;
 
 @Entity
 public class Users {
 
 	@Id
-	private Long id;
-	private String name;
-	private String login;
-	private String password;
-
-	@OneToMany(mappedBy = "users", fetch = FetchType.LAZY)
-	private Set<Roles> roles;
-	
-	public Set<Roles> getRoles() {
-		return roles;
-	}
-
-	public void setRoles(Set<Roles> roles) {
-		this.roles = roles;
-	}
+	@GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "users_id_seq")
+	@SequenceGenerator(name="users_id_seq", sequenceName = "users_id_seq")
+	protected Long id;
+	protected String name;
+	protected String login;
+	protected String password;
 
 	public Users() {
 		super();
@@ -40,13 +31,23 @@ public class Users {
 		this.password = password;
 	}
 	
-	public Users(String name, String login, String password, Set<Roles> roles) {
+	public Users(Long id, String name, String login, String password) {
 		super();
+		this.id=id;
 		this.name = name;
 		this.login = login;
 		this.password = password;
-		this.roles = roles;
 	}
+
+
+	protected Users(Users user) {
+		super();
+		this.id = user.getId();
+		this.name = user.getName();
+		this.login = user.getLogin();
+		this.password = user.getPassword();
+	}
+
 
 	public Long getId() {
 		return id;
@@ -78,6 +79,12 @@ public class Users {
 
 	public void setPassword(String password) {
 		this.password = password;
+	}
+
+
+	@Override
+	public String toString() {
+		return "Users [id=" + id + ", name=" + name + ", login=" + login + ", password=" + password + "]";
 	}
 
 	

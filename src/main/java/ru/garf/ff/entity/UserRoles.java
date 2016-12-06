@@ -4,7 +4,10 @@ package ru.garf.ff.entity;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 
 
@@ -13,6 +16,8 @@ import javax.persistence.Table;
 public class UserRoles {
 
 	@Id
+	@GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "user_roles_id_seq")
+	@SequenceGenerator(name="user_roles_id_seq", sequenceName = "user_roles_id_seq")
 	private Long id;
 	@Column(name = "user_id")
 	private Long userid;
@@ -56,9 +61,5 @@ public class UserRoles {
 		this.roleid = role_id;
 	}
 
-	@Override
-	public String toString() {
-		return "UserRoles [id=" + id + ", userid=" + userid + ", roleid=" + roleid + "]";
-	}
 
 }
