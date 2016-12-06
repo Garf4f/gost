@@ -7,7 +7,7 @@ import ru.garf.ff.entity.Users;
 
 public class UsersRolesView extends Users {
 
-	Set<Long> roles = new TreeSet<Long>();
+	private Set<Long> roles;
 	
 	public UsersRolesView(String name, String login, String password, Set<Long> roles) {
 		super(null, name, login, password);
@@ -21,6 +21,7 @@ public class UsersRolesView extends Users {
 
 	public UsersRolesView() {
 		super();
+		this.roles = new TreeSet<Long>();
 	}
 
 	public Set<Long> getRoles() {

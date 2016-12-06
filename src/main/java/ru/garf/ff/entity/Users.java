@@ -12,7 +12,8 @@ import javax.validation.constraints.Size;
 @Entity
 public class Users {
 	
-	private static final String VALIDATION_PASSWORD = "(.*[0-9].*[A-Z].*)|(.*[A-Z].*[0-9].*)";
+	private static final String VALIDATION_PASSWORD = "([a-zA-Z_0-9]*)";
+	private static final String VALIDATION_LOGIN = "(.*[0-9].*[A-Z].*)|(.*[A-Z].*[0-9].*)";
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "seq")
@@ -20,9 +21,10 @@ public class Users {
 	protected Long id;
 	protected String name;
 	@Size(min=1, message = "Логин не может быть пустым")
+	@Pattern (regexp = VALIDATION_LOGIN, message="Логин должен содержать [a-zA-Z_0-9]")
 	protected String login;
 	@Size(min=1, message = "Пароль не может быть пустым")
-	@Pattern (regexp = VALIDATION_PASSWORD, message="Пароль должен содержать [A-Z] и [0-9]")
+	@Pattern (regexp = VALIDATION_PASSWORD, message="Пароль должен содержать хотя бы одну [A-Z] и одну [0-9]")
 	protected String password;
 
 	public Users() {

@@ -51,18 +51,23 @@ public class GostRestController {
 	}
 
 	@RequestMapping(value = "/get", method = RequestMethod.GET)
-	UsersRolesView getUser(@RequestParam("id") Long id) {
+	Users getUser(@RequestParam("id") Long id) {
 		Users user = this.usersRepository.findOne(id);
 		if (user != null) {
-			Set<Long> list = new TreeSet<Long>();
-			for (UserRoles userRoles : this.userRolesRepository.findByUserid(id)) {
+			List<UserRoles> userRolesList = this.userRolesRepository.findByUserid(id);
+			if (userRolesList.size() == 0) return user;
+
+			Set<Long> list = new TreeSet<Long>();		
+			for (UserRoles userRoles : userRolesList) {
 				list.add(userRoles.getRoleid());
 			}
+
 			UsersRolesView usersRolesView = new UsersRolesView(user, list);
 			return usersRolesView;
+
 		} else {
 			System.out.println("Пользователя с ID: " + id + " не существует.");
-			return new UsersRolesView();
+			return new Users();
 		}
 	}
 
@@ -87,17 +92,14 @@ public class GostRestController {
 			return messageErr;
 		}
 
-		Users users = new Users(
-				null, 
-				usersRolesView.getName(), 
-				usersRolesView.getLogin(),
+		Users users = new Users(null, usersRolesView.getName(), usersRolesView.getLogin(),
 				usersRolesView.getPassword());
-		
+
 		users = this.usersRepository.save(users);
-		for (Long roleId : usersRolesView.getRoles()){
+		for (Long roleId : usersRolesView.getRoles()) {
 			this.userRolesRepository.save(new UserRoles(null, users.getId(), roleId));
 		}
-		return new ReportMessage();	
+		return new ReportMessage();
 	}
 
 	@RequestMapping(value = "/edit", method = RequestMethod.PUT, consumes = "application/json")
@@ -109,7 +111,7 @@ public class GostRestController {
 			}
 			return messageErr;
 		}
-		
+
 		Users users = new Users(null, usersRolesView.getName(), usersRolesView.getLogin(),
 				usersRolesView.getPassword());
 
@@ -121,8 +123,9 @@ public class GostRestController {
 		Users editingUser = usersList.size() != 0 ? usersList.get(0) : null;
 
 		if (editingUser == null) {
-			return new ErrorReportMessage().addError("Пользователя с логином: " + usersRolesView.getLogin() + " не существует.");
-			
+			return new ErrorReportMessage()
+					.addError("Пользователя с логином: " + usersRolesView.getLogin() + " не существует.");
+
 			// Реализация добавления нового пользователя в БД
 			//
 			// this.usersRepository.save(users);
@@ -144,7 +147,7 @@ public class GostRestController {
 			}
 			return new ReportMessage();
 		}
-		
+
 	}
 
 }
