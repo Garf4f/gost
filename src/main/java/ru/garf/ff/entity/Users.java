@@ -6,16 +6,23 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.SequenceGenerator;
+import javax.validation.constraints.Pattern;
+import javax.validation.constraints.Size;
 
 @Entity
 public class Users {
+	
+	private static final String VALIDATION_PASSWORD = "(.*[0-9].*[A-Z].*)|(.*[A-Z].*[0-9].*)";
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "seq")
 	@SequenceGenerator(name="seq", sequenceName = "users_id_seq")
 	protected Long id;
 	protected String name;
+	@Size(min=1, message = "Логин не может быть пустым")
 	protected String login;
+	@Size(min=1, message = "Пароль не может быть пустым")
+	@Pattern (regexp = VALIDATION_PASSWORD, message="Пароль должен содержать [A-Z] и [0-9]")
 	protected String password;
 
 	public Users() {

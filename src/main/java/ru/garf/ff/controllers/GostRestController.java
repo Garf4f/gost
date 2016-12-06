@@ -5,7 +5,11 @@ import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
 
+import javax.validation.Valid;
+
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -15,6 +19,8 @@ import org.springframework.web.bind.annotation.RestController;
 import ru.garf.ff.entity.Roles;
 import ru.garf.ff.entity.UserRoles;
 import ru.garf.ff.entity.Users;
+import ru.garf.ff.model.ErrorReportMessage;
+import ru.garf.ff.model.ReportMessage;
 import ru.garf.ff.model.UsersRolesView;
 import ru.garf.ff.repositories.RolesRepository;
 import ru.garf.ff.repositories.UserRolesRepository;
@@ -72,49 +78,73 @@ public class GostRestController {
 	}
 
 	@RequestMapping(value = "/add", method = RequestMethod.POST, consumes = "application/json")
-	void addUser(@RequestBody UsersRolesView usersRolesView) {
-		Users users = new Users(null, usersRolesView.getName(), usersRolesView.getLogin(),
+	ReportMessage addUser(@Valid @RequestBody UsersRolesView usersRolesView, BindingResult bindingResult) {
+		if (bindingResult.hasErrors()) {
+			ErrorReportMessage messageErr = new ErrorReportMessage();
+			for (FieldError err : bindingResult.getFieldErrors()) {
+				messageErr.addError(err.getDefaultMessage());
+			}
+			return messageErr;
+		}
+
+		Users users = new Users(
+				null, 
+				usersRolesView.getName(), 
+				usersRolesView.getLogin(),
 				usersRolesView.getPassword());
+		
 		users = this.usersRepository.save(users);
-		for (Long roleId : usersRolesView.getRoles())
+		for (Long roleId : usersRolesView.getRoles()){
 			this.userRolesRepository.save(new UserRoles(null, users.getId(), roleId));
+		}
+		return new ReportMessage();	
 	}
 
 	@RequestMapping(value = "/edit", method = RequestMethod.PUT, consumes = "application/json")
-	void editUser(@RequestBody UsersRolesView usersRolesView) {
+	ReportMessage editUser(@Valid @RequestBody UsersRolesView usersRolesView, BindingResult bindingResult) {
+		if (bindingResult.hasErrors()) {
+			ErrorReportMessage messageErr = new ErrorReportMessage();
+			for (FieldError err : bindingResult.getFieldErrors()) {
+				messageErr.addError(err.getDefaultMessage());
+			}
+			return messageErr;
+		}
+		
 		Users users = new Users(null, usersRolesView.getName(), usersRolesView.getLogin(),
 				usersRolesView.getPassword());
-		
-		// Вариант при login UNIQUE
-		// Users editingUser = this.usersRepository.findOneByLogin(users.getLogin());
-		
-		List<Users> usersList= this.usersRepository.findAllByLogin(users.getLogin());
-		Users editingUser = usersList.size() != 0 ? usersList.get(0) : null;
-		
-		if (editingUser == null) {
-			System.out.println("Пользователя с логином: " + usersRolesView.getLogin() + " не существует.");
 
+		// Вариант при login UNIQUE
+		// Users editingUser =
+		// this.usersRepository.findOneByLogin(users.getLogin());
+
+		List<Users> usersList = this.usersRepository.findAllByLogin(users.getLogin());
+		Users editingUser = usersList.size() != 0 ? usersList.get(0) : null;
+
+		if (editingUser == null) {
+			return new ErrorReportMessage().addError("Пользователя с логином: " + usersRolesView.getLogin() + " не существует.");
+			
 			// Реализация добавления нового пользователя в БД
+			//
 			// this.usersRepository.save(users);
 			// users = this.usersRepository.findOneByLogin(users.getLogin());
 			// for (Long roleId : usersRolesView.getRoles())
 			// this.userRolesRepository.save(new UserRoles(users.getId(),
 			// roleId));
-			
+
 		} else {
-			
+
 			users = new Users(editingUser.getId(), users.getName(), users.getLogin(), users.getPassword());
 			this.usersRepository.save(users);
 
 			this.userRolesRepository.deleteInBatch(this.userRolesRepository.findByUserid(editingUser.getId()));
-			for (Long roleId : usersRolesView.getRoles()){
-	
-				this.userRolesRepository.save(new UserRoles(null, editingUser.getId(), roleId));
-				
-			}
-				
+			for (Long roleId : usersRolesView.getRoles()) {
 
+				this.userRolesRepository.save(new UserRoles(null, editingUser.getId(), roleId));
+
+			}
+			return new ReportMessage();
 		}
+		
 	}
 
 }
