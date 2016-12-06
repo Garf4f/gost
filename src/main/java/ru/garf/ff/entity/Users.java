@@ -12,8 +12,8 @@ import javax.validation.constraints.Size;
 @Entity
 public class Users {
 	
-	private static final String VALIDATION_PASSWORD = "([a-zA-Z_0-9]*)";
-	private static final String VALIDATION_LOGIN = "(.*[0-9].*[A-Z].*)|(.*[A-Z].*[0-9].*)";
+	private static final String VALIDATION_LOGIN = "([a-zA-Z_0-9]*)";
+	private static final String VALIDATION_PASSWORD = "(.*[0-9].*[A-Z].*)|(.*[A-Z].*[0-9].*)";
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "seq")

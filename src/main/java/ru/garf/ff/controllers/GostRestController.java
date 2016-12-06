@@ -66,19 +66,20 @@ public class GostRestController {
 			return usersRolesView;
 
 		} else {
-			System.out.println("Пользователя с ID: " + id + " не существует.");
+			System.out.println("Пользователя с ID: '" + id + "' не существует.");
 			return new Users();
 		}
 	}
-
+	
 	@RequestMapping(value = "/delete", method = RequestMethod.DELETE)
-	void deleteUser(@RequestParam("id") Long id) {
+	ReportMessage deleteUser(@RequestParam("id") Long id) {
 		Users user = this.usersRepository.findOne(id);
 		if (user != null) {
 			this.userRolesRepository.deleteInBatch(this.userRolesRepository.findByUserid(id));
 			this.usersRepository.delete(id);
+			return new ReportMessage();
 		} else {
-			System.out.println("Пользователя с ID: " + id + " не существует.");
+			return new ErrorReportMessage().addError("Пользователя с ID: '" + id + "' не существует.");
 		}
 	}
 
@@ -124,7 +125,7 @@ public class GostRestController {
 
 		if (editingUser == null) {
 			return new ErrorReportMessage()
-					.addError("Пользователя с логином: " + usersRolesView.getLogin() + " не существует.");
+					.addError("Пользователя с логином: '" + usersRolesView.getLogin() + "' не существует.");
 
 			// Реализация добавления нового пользователя в БД
 			//
