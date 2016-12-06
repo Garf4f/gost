@@ -1,6 +1,7 @@
 package ru.garf.ff.controllers;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
 
@@ -32,13 +33,13 @@ public class GostRestController {
 	Collection<Users> listU() {
 		return this.usersRepository.findAll();
 	}
-	
-	@RequestMapping(value = "/u", method = RequestMethod.GET)
+
+	@RequestMapping(value = "/r", method = RequestMethod.GET)
 	Collection<Roles> listUR() {
 		return this.roleRepository.findAll();
 	}
-	
-	@RequestMapping(value = "/r", method = RequestMethod.GET)
+
+	@RequestMapping(value = "/u", method = RequestMethod.GET)
 	Collection<UserRoles> listR() {
 		return this.userRolesRepository.findAll();
 	}
@@ -54,6 +55,7 @@ public class GostRestController {
 			UsersRolesView usersRolesView = new UsersRolesView(user, list);
 			return usersRolesView;
 		} else {
+			System.out.println("Пользователя с ID: " + id + " не существует.");
 			return new UsersRolesView();
 		}
 	}
@@ -65,36 +67,53 @@ public class GostRestController {
 			this.userRolesRepository.deleteInBatch(this.userRolesRepository.findByUserid(id));
 			this.usersRepository.delete(id);
 		} else {
-			System.out.println("Нет пользователя с таким ID");
+			System.out.println("Пользователя с ID: " + id + " не существует.");
 		}
 	}
 
 	@RequestMapping(value = "/add", method = RequestMethod.POST, consumes = "application/json")
 	void addUser(@RequestBody UsersRolesView usersRolesView) {
-		Users users = new Users(usersRolesView.getName(), usersRolesView.getLogin(), usersRolesView.getPassword());
-		this.usersRepository.save(users);
-		users = this.usersRepository.findOneByLogin(users.getLogin());
+		Users users = new Users(null, usersRolesView.getName(), usersRolesView.getLogin(),
+				usersRolesView.getPassword());
+		users = this.usersRepository.save(users);
 		for (Long roleId : usersRolesView.getRoles())
-			this.userRolesRepository.save(new UserRoles(users.getId(), roleId));
+			this.userRolesRepository.save(new UserRoles(null, users.getId(), roleId));
 	}
 
 	@RequestMapping(value = "/edit", method = RequestMethod.PUT, consumes = "application/json")
 	void editUser(@RequestBody UsersRolesView usersRolesView) {
-		Users users = new Users(usersRolesView.getName(), usersRolesView.getLogin(), usersRolesView.getPassword());
-		Users uC = this.usersRepository.findOneByLogin(users.getLogin());
-		if(uC == null){
-			this.usersRepository.save(users);
-			users = this.usersRepository.findOneByLogin(users.getLogin());
-			for (Long roleId : usersRolesView.getRoles())
-				this.userRolesRepository.save(new UserRoles(users.getId(), roleId));
+		Users users = new Users(null, usersRolesView.getName(), usersRolesView.getLogin(),
+				usersRolesView.getPassword());
+		
+		// Вариант при login UNIQUE
+		// Users editingUser = this.usersRepository.findOneByLogin(users.getLogin());
+		
+		List<Users> usersList= this.usersRepository.findAllByLogin(users.getLogin());
+		Users editingUser = usersList.size() != 0 ? usersList.get(0) : null;
+		
+		if (editingUser == null) {
+			System.out.println("Пользователя с логином: " + usersRolesView.getLogin() + " не существует.");
+
+			// Реализация добавления нового пользователя в БД
+			// this.usersRepository.save(users);
+			// users = this.usersRepository.findOneByLogin(users.getLogin());
+			// for (Long roleId : usersRolesView.getRoles())
+			// this.userRolesRepository.save(new UserRoles(users.getId(),
+			// roleId));
+			
 		} else {
-			users = new Users(uC.getId(),users.getName(),users.getLogin(),users.getPassword());
+			
+			users = new Users(editingUser.getId(), users.getName(), users.getLogin(), users.getPassword());
 			this.usersRepository.save(users);
-			
-			this.userRolesRepository.deleteInBatch(this.userRolesRepository.findByUserid(uC.getId()));
-			for (Long roleId : usersRolesView.getRoles())
-				this.userRolesRepository.save(new UserRoles(uC.getId(), roleId));
-			
+
+			this.userRolesRepository.deleteInBatch(this.userRolesRepository.findByUserid(editingUser.getId()));
+			for (Long roleId : usersRolesView.getRoles()){
+	
+				this.userRolesRepository.save(new UserRoles(null, editingUser.getId(), roleId));
+				
+			}
+				
+
 		}
 	}
 

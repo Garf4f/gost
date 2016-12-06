@@ -1,7 +1,6 @@
 package ru.garf.ff.entity;
 
 
-
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -16,8 +15,9 @@ import javax.persistence.Table;
 public class UserRoles {
 
 	@Id
-	@GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "user_roles_id_seq")
-	@SequenceGenerator(name="user_roles_id_seq", sequenceName = "user_roles_id_seq")
+	@GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "seq")
+	@SequenceGenerator(name="seq", sequenceName = "users_id_seq")
+
 	private Long id;
 	@Column(name = "user_id")
 	private Long userid;
@@ -25,14 +25,17 @@ public class UserRoles {
 	private Long roleid;
 
 	
-	public UserRoles() {
-		super();
-		// TODO Auto-generated constructor stub
+	 @Override
+	public String toString() {
+		return "UserRoles [id=" + id + ", userid=" + userid + ", roleid=" + roleid + "]";
 	}
 
-	
-	 public UserRoles(Long userid, Long roleid) {
+	public UserRoles() {
 		super();
+	}
+
+	public UserRoles(Long id, Long userid, Long roleid) {
+		this.id=id;
 		this.userid = userid;
 		this.roleid = roleid;
 	}

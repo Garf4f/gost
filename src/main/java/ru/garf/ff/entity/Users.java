@@ -11,8 +11,8 @@ import javax.persistence.SequenceGenerator;
 public class Users {
 
 	@Id
-	@GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "users_id_seq")
-	@SequenceGenerator(name="users_id_seq", sequenceName = "users_id_seq")
+	@GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "seq")
+	@SequenceGenerator(name="seq", sequenceName = "users_id_seq")
 	protected Long id;
 	protected String name;
 	protected String login;
@@ -20,7 +20,6 @@ public class Users {
 
 	public Users() {
 		super();
-
 	}
 
 
@@ -37,15 +36,6 @@ public class Users {
 		this.name = name;
 		this.login = login;
 		this.password = password;
-	}
-
-
-	protected Users(Users user) {
-		super();
-		this.id = user.getId();
-		this.name = user.getName();
-		this.login = user.getLogin();
-		this.password = user.getPassword();
 	}
 
 
@@ -80,15 +70,6 @@ public class Users {
 	public void setPassword(String password) {
 		this.password = password;
 	}
-
-
-	@Override
-	public String toString() {
-		return "Users [id=" + id + ", name=" + name + ", login=" + login + ", password=" + password + "]";
-	}
-
-	
-
 
 
 }
