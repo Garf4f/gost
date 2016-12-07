@@ -1,7 +1,10 @@
 package ru.garf.ff.entity;
 
+import java.util.List;
+
 import javax.persistence.Entity;
 import javax.persistence.Id;
+import javax.persistence.ManyToMany;
 
 @Entity
 public class Roles {
@@ -10,6 +13,8 @@ public class Roles {
 	private Long id;
 	private String name;
 	
+	@ManyToMany(mappedBy="userRolesList")
+	private List<Users> Users;
 	
 	public Roles() {
 		super();

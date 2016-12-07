@@ -1,9 +1,6 @@
 package ru.garf.ff.controllers;
 
 import java.util.Collection;
-import java.util.List;
-import java.util.Set;
-import java.util.TreeSet;
 
 import javax.validation.Valid;
 
@@ -21,7 +18,6 @@ import ru.garf.ff.entity.UserRoles;
 import ru.garf.ff.entity.Users;
 import ru.garf.ff.model.ErrorReportMessage;
 import ru.garf.ff.model.ReportMessage;
-import ru.garf.ff.model.UsersRolesView;
 import ru.garf.ff.repositories.RolesRepository;
 import ru.garf.ff.repositories.UserRolesRepository;
 import ru.garf.ff.repositories.UsersRepository;
@@ -54,28 +50,17 @@ public class GostRestController {
 	Users getUser(@RequestParam("id") Long id) {
 		Users user = this.usersRepository.findOne(id);
 		if (user != null) {
-			List<UserRoles> userRolesList = this.userRolesRepository.findByUserid(id);
-			if (userRolesList.size() == 0) return user;
-
-			Set<Long> list = new TreeSet<Long>();		
-			for (UserRoles userRoles : userRolesList) {
-				list.add(userRoles.getRoleid());
-			}
-
-			UsersRolesView usersRolesView = new UsersRolesView(user, list);
-			return usersRolesView;
-
+			return user;
 		} else {
 			System.out.println("Пользователя с ID: '" + id + "' не существует.");
 			return new Users();
 		}
 	}
-	
+
 	@RequestMapping(value = "/delete", method = RequestMethod.DELETE)
 	ReportMessage deleteUser(@RequestParam("id") Long id) {
 		Users user = this.usersRepository.findOne(id);
 		if (user != null) {
-			this.userRolesRepository.deleteInBatch(this.userRolesRepository.findByUserid(id));
 			this.usersRepository.delete(id);
 			return new ReportMessage();
 		} else {
@@ -84,7 +69,7 @@ public class GostRestController {
 	}
 
 	@RequestMapping(value = "/add", method = RequestMethod.POST, consumes = "application/json")
-	ReportMessage addUser(@Valid @RequestBody UsersRolesView usersRolesView, BindingResult bindingResult) {
+	ReportMessage addUser(@Valid @RequestBody Users users, BindingResult bindingResult) {
 		if (bindingResult.hasErrors()) {
 			ErrorReportMessage messageErr = new ErrorReportMessage();
 			for (FieldError err : bindingResult.getFieldErrors()) {
@@ -92,19 +77,12 @@ public class GostRestController {
 			}
 			return messageErr;
 		}
-
-		Users users = new Users(null, usersRolesView.getName(), usersRolesView.getLogin(),
-				usersRolesView.getPassword());
-
 		users = this.usersRepository.save(users);
-		for (Long roleId : usersRolesView.getRoles()) {
-			this.userRolesRepository.save(new UserRoles(null, users.getId(), roleId));
-		}
 		return new ReportMessage();
 	}
 
 	@RequestMapping(value = "/edit", method = RequestMethod.PUT, consumes = "application/json")
-	ReportMessage editUser(@Valid @RequestBody UsersRolesView usersRolesView, BindingResult bindingResult) {
+	ReportMessage editUser(@Valid @RequestBody Users users, BindingResult bindingResult) {
 		if (bindingResult.hasErrors()) {
 			ErrorReportMessage messageErr = new ErrorReportMessage();
 			for (FieldError err : bindingResult.getFieldErrors()) {
@@ -113,39 +91,10 @@ public class GostRestController {
 			return messageErr;
 		}
 
-		Users users = new Users(null, usersRolesView.getName(), usersRolesView.getLogin(),
-				usersRolesView.getPassword());
-
-		// Вариант при login UNIQUE
-		// Users editingUser =
-		// this.usersRepository.findOneByLogin(users.getLogin());
-
-		List<Users> usersList = this.usersRepository.findAllByLogin(users.getLogin());
-		Users editingUser = usersList.size() != 0 ? usersList.get(0) : null;
-
-		if (editingUser == null) {
-			return new ErrorReportMessage()
-					.addError("Пользователя с логином: '" + usersRolesView.getLogin() + "' не существует.");
-
-			// Реализация добавления нового пользователя в БД
-			//
-			// this.usersRepository.save(users);
-			// users = this.usersRepository.findOneByLogin(users.getLogin());
-			// for (Long roleId : usersRolesView.getRoles())
-			// this.userRolesRepository.save(new UserRoles(users.getId(),
-			// roleId));
-
+		if (this.usersRepository.findOne(users.getId()) == null) {
+			return new ErrorReportMessage().addError("Пользователя с Id: '" + users.getId() + "' не существует.");
 		} else {
-
-			users = new Users(editingUser.getId(), users.getName(), users.getLogin(), users.getPassword());
 			this.usersRepository.save(users);
-
-			this.userRolesRepository.deleteInBatch(this.userRolesRepository.findByUserid(editingUser.getId()));
-			for (Long roleId : usersRolesView.getRoles()) {
-
-				this.userRolesRepository.save(new UserRoles(null, editingUser.getId(), roleId));
-
-			}
 			return new ReportMessage();
 		}
 

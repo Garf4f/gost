@@ -1,10 +1,15 @@
 package ru.garf.ff.entity;
 
 
+import java.util.List;
+
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinTable;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToMany;
 import javax.persistence.SequenceGenerator;
 import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
@@ -26,6 +31,28 @@ public class Users {
 	@Size(min=1, message = "Пароль не может быть пустым")
 	@Pattern (regexp = VALIDATION_PASSWORD, message="Пароль должен содержать хотя бы одну [A-Z] и одну [0-9]")
 	protected String password;
+
+	
+	@ManyToMany
+	@JoinTable(
+		      name="user_roles",
+		      joinColumns = @JoinColumn(name="user_id", referencedColumnName="id"),
+		      inverseJoinColumns = @JoinColumn(name="role_id", referencedColumnName="id")		    		 
+		      )
+	 
+	private List<Roles> userRolesList;
+	
+	
+	
+	public List<Roles> getUserRolesList() {
+		return userRolesList;
+	}
+
+
+	public void setUserRolesList(List<Roles> userRolesList) {
+		this.userRolesList = userRolesList;
+	}
+
 
 	public Users() {
 		super();
@@ -79,6 +106,5 @@ public class Users {
 	public void setPassword(String password) {
 		this.password = password;
 	}
-
 
 }
