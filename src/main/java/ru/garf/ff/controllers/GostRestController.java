@@ -13,37 +13,19 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import ru.garf.ff.entity.Roles;
-import ru.garf.ff.entity.UserRoles;
 import ru.garf.ff.entity.Users;
 import ru.garf.ff.model.ErrorReportMessage;
 import ru.garf.ff.model.ReportMessage;
-import ru.garf.ff.repositories.RolesRepository;
-import ru.garf.ff.repositories.UserRolesRepository;
 import ru.garf.ff.repositories.UsersRepository;
 
 @RestController
 public class GostRestController {
 	@Autowired
 	UsersRepository usersRepository;
-	@Autowired
-	RolesRepository roleRepository;
-	@Autowired
-	UserRolesRepository userRolesRepository;
 
 	@RequestMapping(value = "/list", method = RequestMethod.GET)
 	Collection<Users> listU() {
 		return this.usersRepository.findAll();
-	}
-
-	@RequestMapping(value = "/r", method = RequestMethod.GET)
-	Collection<Roles> listUR() {
-		return this.roleRepository.findAll();
-	}
-
-	@RequestMapping(value = "/u", method = RequestMethod.GET)
-	Collection<UserRoles> listR() {
-		return this.userRolesRepository.findAll();
 	}
 
 	@RequestMapping(value = "/get", method = RequestMethod.GET)
