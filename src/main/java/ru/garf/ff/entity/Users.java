@@ -1,7 +1,7 @@
 package ru.garf.ff.entity;
 
 
-import java.util.List;
+import java.util.Set;
 
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -40,17 +40,17 @@ public class Users {
 		      inverseJoinColumns = @JoinColumn(name="role_id", referencedColumnName="id")		    		 
 		      )
 	 
-	private List<Roles> userRolesList;
+	private Set<Roles> userRolesSet;
 	
 	
 	
-	public List<Roles> getUserRolesList() {
-		return userRolesList;
+	public Set<Roles> getUserRolesList() {
+		return userRolesSet;
 	}
 
 
-	public void setUserRolesList(List<Roles> userRolesList) {
-		this.userRolesList = userRolesList;
+	public void setUserRolesList(Set<Roles> userRolesList) {
+		this.userRolesSet = userRolesList;
 	}
 
 

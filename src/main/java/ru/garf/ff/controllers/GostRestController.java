@@ -5,8 +5,10 @@ import java.util.Collection;
 import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.orm.jpa.JpaObjectRetrievalFailureException;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
+import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -82,4 +84,23 @@ public class GostRestController {
 
 	}
 
+	@ExceptionHandler(value = JpaObjectRetrievalFailureException.class)
+	ReportMessage globalErrorReport(JpaObjectRetrievalFailureException e){
+		String message = e.getMessage();
+		System.err.println(message);
+		String id = message.split(";")[0].split(" id ")[1];
+		return new ErrorReportMessage().addError("Роли со значение id: '" + id + "' не сущестует");
+		
+	}
+	
+	@ExceptionHandler(value = Exception.class)
+	ReportMessage globalErrorReport(Exception e){
+		System.err.println(e.getMessage());
+		return new ErrorReportMessage().addError("Произошла какая-то глобальная ошибка");
+		
+	}
+
+
+	
+	
 }
