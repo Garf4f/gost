@@ -23,14 +23,14 @@ public class Users {
 	@Id
 	@GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "seq")
 	@SequenceGenerator(name="seq", sequenceName = "users_id_seq")
-	protected Long id;
-	protected String name;
+	private Long id;
+	private String name;
 	@Size(min=1, message = "Логин не может быть пустым")
 	@Pattern (regexp = VALIDATION_LOGIN, message="Логин должен содержать [a-zA-Z_0-9]")
-	protected String login;
+	private String login;
 	@Size(min=1, message = "Пароль не может быть пустым")
 	@Pattern (regexp = VALIDATION_PASSWORD, message="Пароль должен содержать хотя бы одну [A-Z] и одну [0-9]")
-	protected String password;
+	private String password;
 
 	
 	@ManyToMany
